@@ -1,10 +1,10 @@
 package ezscrum.model;
 
 import org.hibernate.validator.constraints.NotBlank;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.persistence.*;
-import java.security.SecureRandom;
 
 @Entity // This tells Hibernate to make a table out of this class
 public class User {
@@ -18,6 +18,8 @@ public class User {
     private String email;
 
     private String password;
+
+	private boolean enabled = true;
 
 	public Long getId() {
 		return id;
@@ -52,9 +54,12 @@ public class User {
 		this.password = password;
 	}
 
-	public void setUnencryptedPassword(String password) {
-        setPassword(new BCryptPasswordEncoder(12, new SecureRandom()).encode(password));
-    }
+	public boolean isEnabled() {
+    	return enabled;
+	}
 
+	public void setEnabled(boolean enabled) {
+    	this.enabled = enabled;
+	}
 }
 

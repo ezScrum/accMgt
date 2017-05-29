@@ -2,9 +2,12 @@ package ezscrum.service;
 
 import ezscrum.model.User;
 import ezscrum.repositories.UserRepository;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +16,8 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
     public User findUserByUsername(String username){
@@ -31,7 +36,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User save(User user){
-        return userRepository.save(user);
+        User us = new User();
+        us.setUsername(user.getUsername());
+        us.setEmail(user.getEmail());
+        us.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        us.setEnabled(true);
+
+        return userRepository.save(us);
     }
 
     @Override
