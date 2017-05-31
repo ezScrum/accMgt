@@ -43,7 +43,7 @@ public class AccountController {
 //    }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody ResponseEntity<JSONObject> getUserById(@PathVariable Long id) throws JSONException {
+    public @ResponseBody ResponseEntity<Object> getUserById(@PathVariable Long id) throws JSONException {
         User user = userService.findUserById(id);
         JSONObject account = new JSONObject();
 
