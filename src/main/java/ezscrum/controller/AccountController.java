@@ -3,13 +3,16 @@ package ezscrum.controller;
 import ezscrum.model.User;
 import ezscrum.repositories.UserRepository;
 import ezscrum.service.UserService;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
 @RestController
 @RequestMapping(path = "accounts")
@@ -21,10 +24,27 @@ public class AccountController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
 //    @CrossOrigin(origins = "http://localhost:8080")
     @RequestMapping(method = RequestMethod.GET, path = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody Iterable<User> getAllUsers() {
-        return userRepository.findAll();
+    public @ResponseBody String getAllUsers()  throws JSONException {
+        Iterable<User> users = userRepository.findAll();
+        JSONArray usersJSON = new JSONArray();
+        for(User user : users){
+            JSONObject userJSON = new JSONObject();
+            userJSON.put("id", user.getId());
+            userJSON.put("username", user.getUsername());
+            userJSON.put("email", user.getEmail());
+            userJSON.put("enabled", user.isEnabled());
+            userJSON.put("systemrole", user.getSystemRole());
+            userJSON.put("password", user.getPassword());
+            usersJSON.put(userJSON);
+        }
+        JSONObject accounts = new JSONObject();
+        accounts.put("accounts", usersJSON);
+        return accounts.toString();
     }
 
 //    @CrossOrigin(origins = "http://localhost:8080")
@@ -42,8 +62,26 @@ public class AccountController {
 //        return new ResponseEntity<>(user, HttpStatus.FOUND);
 //    }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody ResponseEntity<Object> getUserById(@PathVariable Long id) throws JSONException {
+    @RequestMapping(value = "/getAccount",method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE )
+    public @ResponseBody String getAccount(@RequestParam Map<String,String> requestParams) throws JSONException{
+        String username = requestParams.get("username");
+        String password = bCryptPasswordEncoder.encode(requestParams.get("password"));
+        User user = userService.findUserByUsername(username);
+        JSONObject account = new JSONObject();
+
+        if(user != null /*&& password == user.getPassword()*/) {
+            account.put("id", user.getId());
+            account.put("username", user.getUsername());
+            account.put("email", user.getEmail());
+            account.put("enabled", user.isEnabled());
+            account.put("systemrole", user.getSystemRole());
+            account.put("password", user.getPassword());
+        }
+        return account.toString();
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/ ", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody ResponseEntity<JSONObject> getUserById(@PathVariable Long id) throws JSONException {
         User user = userService.findUserById(id);
         JSONObject account = new JSONObject();
 
@@ -54,9 +92,7 @@ public class AccountController {
             account.put("enabled", user.isEnabled());
         }
 
-        System.out.println(account);
-
-        return new ResponseEntity<>(account, HttpStatus.FOUND);
+        return new ResponseEntity<JSONObject>(account, HttpStatus.FOUND);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/delete/{id}")
@@ -65,7 +101,17 @@ public class AccountController {
     }
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public @ResponseBody String addNewUser (@RequestBody User user) {
+    public @ResponseBody String addNewUser (@RequestBody Map<String, String>  payload) {
+        User user;
+        user =  userService.findUserByUsername(payload.get("username").toString());
+        if(user != null)
+            return "username exist";
+        user = new User();
+        user.setUsername(payload.get("username").toString());
+        user.setPassword(payload.get("password").toString());
+        user.setEmail(payload.get("email").toString());
+        user.setEnabled(Boolean.valueOf(payload.get("enabled")));
+        user.setSystemRole(Boolean.valueOf(payload.get("systemrole")));
         userService.save(user);
         return "Saved";
     }
@@ -76,13 +122,9 @@ public class AccountController {
         update.setUsername(user.getUsername());
         update.setEmail(user.getEmail());
         update.setPassword(user.getPassword());
+        update.setSystemRole(user.getSystemRole());
         userService.save(update);
         return "Updated";
     }
 
-    @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public ResponseEntity createUser(@RequestBody User user){
-        userService.save(user);
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
-    }
 }

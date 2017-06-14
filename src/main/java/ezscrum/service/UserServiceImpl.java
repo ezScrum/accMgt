@@ -2,8 +2,6 @@ package ezscrum.service;
 
 import ezscrum.model.User;
 import ezscrum.repositories.UserRepository;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -18,6 +16,10 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    private String username;
+
+    //public UserServiceImpl (String username){/*this.username = username;*/}
 
     @Override
     public User findUserByUsername(String username){
@@ -40,7 +42,8 @@ public class UserServiceImpl implements UserService {
         us.setUsername(user.getUsername());
         us.setEmail(user.getEmail());
         us.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        us.setEnabled(true);
+        us.setEnabled(user.isEnabled());
+        us.setSystemRole(user.getSystemRole());
 
         return userRepository.save(us);
     }
