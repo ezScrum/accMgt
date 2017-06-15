@@ -61,6 +61,15 @@ public class AccountController {
 //        System.out.println(password);
 //        return new ResponseEntity<>(user, HttpStatus.FOUND);
 //    }
+    @RequestMapping(value = "/check", method = RequestMethod.GET, produces =  MediaType.APPLICATION_JSON_VALUE)
+    public  @ResponseBody String  validateUsername(@RequestParam(value = "username") String username){
+        System.out.println(" username = " + username);
+        User user = userService.findUserByUsername(username);
+        if(user != null)
+            return "true";
+
+       return "false";
+    }
 
     @RequestMapping(value = "/getAccount",method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE )
     public @ResponseBody String getAccount(@RequestParam Map<String,String> requestParams) throws JSONException{
