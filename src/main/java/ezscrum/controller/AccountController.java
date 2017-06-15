@@ -63,7 +63,6 @@ public class AccountController {
 //    }
     @RequestMapping(value = "/check", method = RequestMethod.GET, produces =  MediaType.APPLICATION_JSON_VALUE)
     public  @ResponseBody String  validateUsername(@RequestParam(value = "username") String username){
-        System.out.println(" username = " + username);
         User user = userService.findUserByUsername(username);
         if(user != null)
             return "true";
