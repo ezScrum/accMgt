@@ -23,6 +23,8 @@ public class User {
 
 	private boolean systemrole;
 
+	private  String nickname;
+
 	public User(){}
 
 	public User (String username, String password){
@@ -66,6 +68,14 @@ public class User {
 
     public boolean getSystemRole(){
 		return systemrole;
+	}
+
+	public String getNickname(){
+    	return nickname;
+	}
+
+	public void setNickname(String nickname){
+		this.nickname = nickname;
 	}
 
 	public void setSystemRole(boolean systemrole){
