@@ -13,7 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import java.util.Map;
+
+import java.util.*;
 
 @RestController
 @RequestMapping(path = "accounts")
@@ -177,4 +178,23 @@ public class AccountController {
         }
         return account.toString();
     }
+
+    @RequestMapping(value = "/getAccountList", method = RequestMethod.POST)
+    public @ResponseBody String updateSystemRole (@RequestBody Map<String, Long[]>  payload) throws JSONException{
+        Long[] ids = payload.get("accounts_id");
+//        JSONArray usersJSON = new JSONArray();
+        JSONObject json = new JSONObject();
+        for (long id:ids) {
+            User user = userService.findUserById(Long.valueOf(id));
+            if(user != null){
+//                JSONObject json = new JSONObject();
+                json.put(String.valueOf(id),user.getUsername());
+//                usersJSON.put(json);
+            }
+        }
+//        JSONObject response = new JSONObject();
+//        response.put("UserList", usersJSON);
+        return json.toString();
+    }
+
 }
