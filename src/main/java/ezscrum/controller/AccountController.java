@@ -197,4 +197,9 @@ public class AccountController {
         return json.toString();
     }
 
+    @RequestMapping(value = "/checkConnect", method = RequestMethod.GET)
+    public @ResponseBody boolean checkConnect(){
+        return true;
+    }
+
 }
