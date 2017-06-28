@@ -1,5 +1,6 @@
 package ezscrum.controller;
 
+import ezscrum.Notification.Notification;
 import ezscrum.model.User;
 import ezscrum.repositories.UserRepository;
 import ezscrum.service.UserService;
@@ -14,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.*;
 
 @RestController
@@ -202,4 +204,101 @@ public class AccountController {
         return true;
     }
 
+    @RequestMapping(value = "/getNotificationSubscriptStatus", method = RequestMethod.POST)
+    public @ResponseBody String getNotificationStatus(@RequestBody Map<String,String>  payload)throws JSONException{
+        String userId = payload.get("account_id");
+        String firebaseToken = payload.get("firebaseToken");
+
+        User user = userService.findUserById(Long.valueOf(userId));
+        if(user != null){
+            try {
+                Notification notification = new Notification();
+                return notification.GetSubscriptionStatus(user.getUsername(),firebaseToken);
+            }catch(IOException e){
+                return "Connection Error";
+            }
+        }
+        else
+            return "This user is not exist.";
+    }
+
+    @RequestMapping(value = "/subscribeNotification", method = RequestMethod.POST)
+    public @ResponseBody String subscribeNotification(@RequestBody Map<String,String>  payload)throws JSONException {
+        String userId = payload.get("account_id");
+        String firebaseToken = payload.get("firebaseToken");
+        User user = userService.findUserById(Long.valueOf(userId));
+        if(user != null){
+            try {
+                Notification notification = new Notification();
+                return notification.Subscribe(user.getUsername(),firebaseToken);
+            }catch(IOException e){
+                return "Connection Error";
+            }
+        }
+        else
+            return "This user is not exist.";
+    }
+
+    @RequestMapping(value = "/cancelSubscribeNotification", method = RequestMethod.POST)
+    public @ResponseBody String unSubscribeNotification(@RequestBody Map<String,String>  payload)throws JSONException {
+        String userId = payload.get("account_id");
+        String firebaseToken = payload.get("firebaseToken");
+        User user = userService.findUserById(Long.valueOf(userId));
+        if(user != null){
+            try {
+                Notification notification = new Notification();
+                return notification.CancelSubscribe(user.getUsername(),firebaseToken);
+            }catch(IOException e){
+                return "Connection Error";
+            }
+        }
+        return "This user is not exist.";
+    }
+
+    @RequestMapping(value = "/sendNotification", method = RequestMethod.POST)
+    public @ResponseBody String sendNotification(@RequestBody Map<String,String>  payload)throws JSONException {
+        JSONArray recipientsId = new JSONArray(payload.get("receiversId")) ;
+        String title = payload.get("title");
+        String body = payload.get("body");
+        String eventSource = payload.get("eventSource");
+
+        ArrayList<String> recipients = new ArrayList<String>();
+        for (int index =0; index<recipientsId.length();index++){
+            User user = userService.findUserById(Long.valueOf(recipientsId.getLong(index)));
+            if(user != null){
+                recipients.add(user.getUsername());
+            }
+        }
+
+        String response = "";
+        if(recipients.size() == 0){
+            response = "Didn't have recipient.";
+            return response;
+        }
+
+        try{
+            Notification notification = new Notification();
+            response = notification.SendMessage(title,body,eventSource,recipients);
+        }catch (IOException e){
+            response = "Connection Error";
+        }
+
+        return response;
+    }
+
+    @RequestMapping(value = "/notifyServiceLogout", method = RequestMethod.POST)
+    public @ResponseBody String notifyServiceLogout(@RequestBody Map<String,String>  payload)throws JSONException {
+        String userId = payload.get("account_id");
+        String firebaseToken = payload.get("firebaseToken");
+        User user = userService.findUserById(Long.valueOf(userId));
+        if(user != null){
+            try {
+                Notification notification = new Notification();
+                return notification.NotifyLogout(user.getUsername(),firebaseToken);
+            }catch(IOException e){
+                return "Connection Error";
+            }
+        }
+        return "This user is not exist.";
+    }
 }
