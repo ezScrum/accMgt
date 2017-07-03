@@ -257,7 +257,7 @@ public class AccountController {
 
     @RequestMapping(value = "/sendNotification", method = RequestMethod.POST)
     public @ResponseBody String sendNotification(@RequestBody Map<String,String>  payload)throws JSONException {
-        JSONArray recipientsId = new JSONArray(payload.get("receiversId")) ;
+        JSONArray recipientsId = new JSONArray(payload.get("accounts_id")) ;
         String title = payload.get("title");
         String body = payload.get("body");
         String eventSource = payload.get("eventSource");
