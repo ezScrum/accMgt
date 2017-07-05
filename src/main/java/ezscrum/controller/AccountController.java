@@ -182,7 +182,7 @@ public class AccountController {
     }
 
     @RequestMapping(value = "/getAccountList", method = RequestMethod.POST)
-    public @ResponseBody String updateSystemRole (@RequestBody Map<String, Long[]>  payload) throws JSONException{
+    public @ResponseBody String getAccountList (@RequestBody Map<String, Long[]>  payload) throws JSONException{
         Long[] ids = payload.get("accounts_id");
 //        JSONArray usersJSON = new JSONArray();
         JSONObject json = new JSONObject();
