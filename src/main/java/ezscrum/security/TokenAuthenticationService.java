@@ -11,7 +11,7 @@ import java.util.Date;
 import static java.util.Collections.emptyList;
 
 public class TokenAuthenticationService {
-    static final long EXPIRATIONTIME = 864_000_000;
+    static final long EXPIRATIONTIME = 28_800_000;//8 hour
     static final String SECRET = "ThisIsASecret";
     static final String TOKEN_PREFIX = "Bearer";
     static final String HEADER_STRING = "Authorization";

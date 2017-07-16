@@ -9,6 +9,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -39,9 +41,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public User save(User user){
         User us = new User();
+
+        us.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         us.setUsername(user.getUsername());
         us.setEmail(user.getEmail());
-        us.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         us.setEnabled(user.isEnabled());
         us.setSystemRole(user.getSystemRole());
         us.setNickname(user.getNickname());
@@ -52,4 +55,6 @@ public class UserServiceImpl implements UserService {
     public User findUserById(Long id){
         return userRepository.findOne(id);
     }
+
+
 }

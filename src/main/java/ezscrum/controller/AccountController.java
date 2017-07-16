@@ -31,8 +31,6 @@ public class AccountController {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-
-//    @CrossOrigin(origins = "http://localhost:8080")
     @RequestMapping(method = RequestMethod.GET, path = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String getAllUsers()  throws JSONException {
         Iterable<User> users = userRepository.findAll();
@@ -53,26 +51,11 @@ public class AccountController {
         return accounts.toString();
     }
 
-//    @CrossOrigin(origins = "http://localhost:8080")
-//    @RequestMapping(method = RequestMethod.POST, path = "/test", produces = MediaType.APPLICATION_JSON_VALUE)
-//    public ResponseEntity<User> getUser(@RequestParam String username, @RequestParam String password) {
-//        User user = userService.findUserByUsername(username);
-//        if (user != null){
-//            System.out.println(user.getUsername());
-//            System.out.println(user.getEmail());
-//            System.out.println(user.getPassword());
-//            System.out.println(user.isEnabled());
-//        }
-//        System.out.println(username);
-//        System.out.println(password);
-//        return new ResponseEntity<>(user, HttpStatus.FOUND);
-//    }
     @RequestMapping(value = "/check", method = RequestMethod.GET, produces =  MediaType.APPLICATION_JSON_VALUE)
     public  @ResponseBody String  validateUsername(@RequestParam(value = "username") String username){
         User user = userService.findUserByUsername(username);
         if(user != null)
             return "true";
-
        return "false";
     }
 
@@ -140,33 +123,37 @@ public class AccountController {
     @RequestMapping(value = "/update/{id}", method = RequestMethod.PUT)
     public @ResponseBody String updateUser (@PathVariable Long id, @RequestBody Map<String, String>  payload)  throws JSONException{
         User update = userService.findUserByUsername(payload.get("username"));
-        if(update.getId() != Long.valueOf(id)) {
-            return "username is not correct";
+        if(update == null){
+            return "send incorrect data";
         }
+        long updateId = update.getId();
+        long pathId = Long.valueOf(id);
+        if(updateId != pathId) {
+            return "username is not correct";}
+
         update.setEmail(payload.get("email").toString());
         update.setNickname(payload.get("nickname").toString());
         update.setEnabled(Boolean.valueOf(payload.get("enabled")));
         if(payload.get("password").toString() != null && !payload.get("password").toString().isEmpty() && !payload.get("password").toString().equals(""))
             update.setPassword(bCryptPasswordEncoder.encode(payload.get("password").toString()));
 
-//        update.setSystemRole(Boolean.valueOf(payload.get("systemrole")));
         userRepository.save(update);
-//        userService.updateAccount(update.getId(), update.getUsername(),payload.get("password").toString(),payload.get("email").toString(), Boolean.valueOf(payload.get("enabled")) ,Boolean.valueOf(payload.get("systemrole")));
         JSONObject account = new JSONObject();
-        if(update != null) {
-            account.put("id", update.getId());
-            account.put("username", update.getUsername());
-            account.put("nickname", update.getNickname());
-            account.put("email", update.getEmail());
-            account.put("enabled", update.isEnabled());
-            account.put("systemrole", update.getSystemRole());
-        }
+        account.put("id", update.getId());
+        account.put("username", update.getUsername());
+        account.put("nickname", update.getNickname());
+        account.put("email", update.getEmail());
+        account.put("enabled", update.isEnabled());
+        account.put("systemrole", update.getSystemRole());
+
         return account.toString();
     }
 
     @RequestMapping(value = "/updateSystemRole/{id}", method = RequestMethod.PUT)
     public @ResponseBody String updateSystemRole (@PathVariable Long id, @RequestBody Map<String, String>  payload)  throws JSONException{
         User user = userService.findUserById(Long.valueOf(id));
+        if(user == null){
+            return "send incorrect data";}
         JSONObject account = new JSONObject();
         user.setSystemRole(Boolean.valueOf(payload.get("systemrole")));
         userRepository.save(user);
@@ -176,33 +163,29 @@ public class AccountController {
             account.put("nickname", user.getNickname());
             account.put("email", user.getEmail());
             account.put("enabled", user.isEnabled());
-            account.put("systemrole", user.getSystemRole());
-        }
+            account.put("systemrole", user.getSystemRole());}
         return account.toString();
-    }
-
-    @RequestMapping(value = "/getAccountList", method = RequestMethod.POST)
-    public @ResponseBody String getAccountList (@RequestBody Map<String, Long[]>  payload) throws JSONException{
-        Long[] ids = payload.get("accounts_id");
-//        JSONArray usersJSON = new JSONArray();
-        JSONObject json = new JSONObject();
-        for (long id:ids) {
-            User user = userService.findUserById(Long.valueOf(id));
-            if(user != null){
-//                JSONObject json = new JSONObject();
-                json.put(String.valueOf(id),user.getUsername());
-//                usersJSON.put(json);
-            }
-        }
-//        JSONObject response = new JSONObject();
-//        response.put("UserList", usersJSON);
-        return json.toString();
     }
 
     @RequestMapping(value = "/checkConnect", method = RequestMethod.GET)
     public @ResponseBody boolean checkConnect(){
         return true;
     }
+
+    @RequestMapping(value = "/getAccountList", method = RequestMethod.POST)
+    public @ResponseBody String getAccountList (@RequestBody Map<String, Long[]>  payload) throws JSONException{
+        Long[] ids = payload.get("accounts_id");
+        JSONObject json = new JSONObject();
+        for (long id:ids) {
+            User user = userService.findUserById(Long.valueOf(id));
+            if(user != null){
+                json.put(String.valueOf(id),user.getUsername());
+            }
+        }
+        return json.toString();
+    }
+
+
 
     @RequestMapping(value = "/getNotificationSubscriptStatus", method = RequestMethod.POST)
     public @ResponseBody String getNotificationStatus(@RequestBody Map<String,String>  payload)throws JSONException{
