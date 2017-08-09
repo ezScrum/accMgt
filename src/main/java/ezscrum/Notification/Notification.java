@@ -76,13 +76,14 @@ public class Notification {
         return SendApi(json, serviceUrl+"/notify/cancelSubscribe");
     }
 
-    public String SendMessage(String tittle, String body, String eventSource, ArrayList<String> receivers)throws IOException,JSONException{
+    public String SendMessage(String tittle, String body, String eventSource, ArrayList<String> receivers,String messageFilter)throws IOException,JSONException{
         JSONArray array = new JSONArray(receivers);
         JSONObject json = new JSONObject();
         json.put("tittle",tittle);
         json.put("body",body);
         json.put("eventSource",eventSource);
         json.put("receivers",array.toString());
+        json.put("filter",messageFilter);
         return SendApi(json, serviceUrl+"/notify/send");
     }
 }

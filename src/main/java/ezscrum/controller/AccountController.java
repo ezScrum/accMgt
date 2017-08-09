@@ -244,6 +244,7 @@ public class AccountController {
         String title = payload.get("title");
         String body = payload.get("body");
         String eventSource = payload.get("eventSource");
+        String messageFilter = payload.get("filter");
 
         ArrayList<String> recipients = new ArrayList<String>();
         for (int index =0; index<recipientsId.length();index++){
@@ -261,7 +262,7 @@ public class AccountController {
 
         try{
             Notification notification = new Notification();
-            response = notification.SendMessage(title,body,eventSource,recipients);
+            response = notification.SendMessage(title,body,eventSource,recipients,messageFilter);
         }catch (IOException e){
             response = "Connection Error";
         }
