@@ -86,4 +86,11 @@ public class Notification {
         json.put("filter",messageFilter);
         return SendApi(json, serviceUrl+"/notify/send");
     }
+
+    public String updateProjectScriptStatus(String username, String projectScriptStatus)throws IOException,JSONException{
+        JSONObject json = new JSONObject();
+        json.put("username",username);
+        json.put("filter",projectScriptStatus);
+        return SendApi(json, serviceUrl+"/notify/updateFilter");
+    }
 }

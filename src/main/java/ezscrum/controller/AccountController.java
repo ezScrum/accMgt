@@ -285,4 +285,20 @@ public class AccountController {
         }
         return "This user is not exist.";
     }
+
+    @RequestMapping(value = "/updateProjectSubscriptStatus", method = RequestMethod.POST)
+    public @ResponseBody String updateProjectSubscriptStatus(@RequestBody Map<String,String>  payload)throws JSONException{
+        String userId = payload.get("account_id");
+        String projectsStatus = payload.get("projectsStatus");
+        User user = userService.findUserById(Long.valueOf(userId));
+        if(user != null){
+            try {
+                Notification notification = new Notification();
+                return notification.updateProjectScriptStatus(user.getUsername(), projectsStatus);
+            }catch(IOException e){
+                return "Connection Error";
+            }
+        }
+        return "This user is not exist.";
+    }
 }
